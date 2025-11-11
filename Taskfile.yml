@@ -5,3 +5,8 @@ tasks:
     desc: "Atualiza os resultados de uma loteria. Ex: task update quina"
     cmds:
       - docker-compose run --rm app python scripts/update.py {{.CLI_ARGS}}
+  
+  test:
+    desc: "Roda os testes com pytest"
+    cmds:
+      - docker-compose run --rm app pytest

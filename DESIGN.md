@@ -2,54 +2,58 @@
 
 ## 1. Arquitetura Geral
 
-A solução será implementada em um repositório GitHub, utilizando Python para os scripts de processamento de dados e GitHub Actions para a orquestração e automação do fluxo de trabalho.
+A solução é implementada em um repositório GitHub, utilizando Python para os scripts de processamento de dados, GitHub Actions para automação de CI/CD e Docker para criar um ambiente de execução consistente.
 
-O design foi pensado para ser simples, robusto e extensível.
+### 1.1. Ambiente de Execução
 
-### Diagrama de Fluxo
+O projeto é totalmente containerizado com Docker para encapsular as dependências e o ambiente Python, eliminando a necessidade de configuração manual da máquina local. O `Taskfile.yml` atua como um `Makefile`, fornecendo comandos simples (`task update {loteria}`) para interagir com o ambiente Docker.
+
+### 1.2. Diagrama de Fluxo
+
+O fluxo de dados permanece o mesmo, com a execução do script sendo abstraída pelo Docker.
 
 ```text
-┌───────────────────┐      ┌──────────────────┐      ┌───────────────────┐
-│  GitHub Actions   │      │  Script Python   │      │   API da Caixa    │
-│ (Agendador Cron)  ├─────►│   (update.py)    ├─────►│  (servicebus2...) │
-└─────────┬─────────┘      └─────────┬────────┘      └─────────┬─────────┘
-          │                          │                          │
-          │ (Executa Job)            │ (Busca último concurso)  │ (Retorna JSON)
-          │                          │                          │
-          │                          ▼                          │
-          │                  ┌──────────────────┐               │
-          │                  │  Compara Dados   │◄───────────────┘
+┌───────────────────┐      ┌────────────────────────┐      ┌───────────────────┐
+│  GitHub Actions   │      │ Docker + Script Python │      │   API da Caixa    │
+│ (Agendador Cron)  ├─────►│      (update.py)       ├─────►│  (servicebus2...) │
+└─────────┬─────────┘      └──────────┬─────────────┘      └─────────┬─────────┘
+          │                           │                             │
+          │ (Executa Job)             │ (Busca último concurso)     │ (Retorna JSON)
+          │                           │                             │
+          │                           ▼                             │
+          │                  ┌──────────────────┐                   │
+          │                  │  Compara Dados   │◄───────────────────┘
           │                  └─────────┬────────┘
-          │                          │
-          │                          │ (Se houver novo concurso)
-          │                          │
-          │                          ▼
+          │                            │
+          │                            │ (Se houver novo concurso)
+          │                            │
+          │                            ▼
 ┌─────────▼─────────┐      ┌──────────────────┐
 │     Commit &      │      │   Adiciona ao    │
 │ Push no Repositório├─────◄│      .csv        │
 └───────────────────┘      └──────────────────┘
-
 ```
 
 ## 2. Estrutura do Repositório
-
-A organização dos arquivos no repositório seguirá a seguinte estrutura:
 
 ```text
 loterias-caixa-db/
 ├── .github/
 │   └── workflows/
-│       └── update_results.yml      # Workflow principal do GitHub Actions
+│       └── update_results.yml
 ├── data/
-│   ├── megasena.csv                # Dados históricos e atualizados da Mega-Sena
-│   ├── quina.csv                   # Dados históricos e atualizados da Quina
-│   └── lotofacil.csv               # Dados históricos e atualizados da Lotofácil
+│   ├── megasena.csv
+│   ├── quina.csv
+│   └── lotofacil.csv
 ├── scripts/
-│   ├── bootstrap.py                # Script para carga inicial de dados (uso manual)
-│   └── update.py                   # Script principal para atualização via API
-├── .gitignore                      # Arquivo para ignorar arquivos e diretórios (e.g., __pycache__)
-├── requirements.txt                # Lista de dependências Python
-└── README.md                       # Documentação geral do projeto
+│   ├── bootstrap.py
+│   └── update.py
+├── .gitignore
+├── Dockerfile                  # Define a imagem Docker da aplicação
+├── docker-compose.yml          # Orquestra os serviços Docker
+├── requirements.txt
+├── Taskfile.yml                # Define tarefas de automação (como um Makefile)
+└── README.md
 ```
 
 ## 3. Design dos Componentes
@@ -58,40 +62,20 @@ loterias-caixa-db/
 
 - **Linguagem:** Python 3.
 - **Dependências:** `pandas`, `requests`.
+- **Execução Local:** `task update {nome_da_loteria}`.
 - **Funcionalidade:**
-  - O script será modularizado para lidar com as especificidades de cada loteria.
-  - Receberá um argumento via linha de comando para definir qual loteria deve ser atualizada (e.g., `python scripts/update.py quina`).
-  - **Lógica Principal (ETL - Extract, Transform, Load):**
-        1. **Extração (Extract):**
-            - Carregar o arquivo `data/{loteria}.csv` para identificar o schema de destino e o número do último concurso registrado.
-            - Fazer requisições sequenciais à API da Caixa para os concursos seguintes (`ultimo_concurso + 1`, `+2`, ...), extraindo os dados em formato JSON até que não haja novos concursos.
-        2. **Transformação (Transform):**
-            - Para cada concurso em JSON obtido da API, aplicar uma camada de transformação.
-            - Esta camada irá mapear os campos do JSON para as colunas do `.csv` de destino, conforme o schema definido pelo arquivo de bootstrap. Esta lógica de mapeamento será customizada para cada loteria.
-            - Exemplo: Mapear `numero` do JSON para a coluna `Concurso` do CSV, `dataApuracao` para `Data Sorteio`, e assim por diante.
-        3. **Carga (Load):**
-            - Coletar os registros transformados.
-            - Ao final do processo, adicionar os novos registros ao arquivo `{loteria}.csv`, garantindo a consistência com os dados históricos.
+    - O script é executado dentro de um contêiner Docker, garantindo consistência.
+    - Recebe o nome da loteria como argumento de linha de comando.
+    - **Lógica Principal (ETL - Extract, Transform, Load):**
+        1.  **Extração (Extract):** Carrega o `.csv` local, identifica o último concurso e busca os dados dos concursos seguintes na API da Caixa.
+        2.  **Transformação (Transform):** Mapeia os dados do JSON da API para o schema do `.csv` de destino.
+        3.  **Carga (Load):** Adiciona os novos registros ao arquivo `.csv`.
 
 ### 3.2. Workflow do GitHub Actions (`.github/workflows/update_results.yml`)
 
-- **Gatilho (Trigger):**
-  - **Agendado (cron):** Será configurado para rodar diariamente em um horário de baixa atividade (e.g., `0 5 * * *` - todo dia às 5h UTC).
-  - **Manual (workflow_dispatch):** Permitirá a execução manual do workflow através da interface do GitHub, útil para testes e manutenções.
-- **Jobs:**
-  - O workflow terá um *job* separado para cada loteria (`update_quina`, `update_megasena`, etc.). Isso permite que falhas em uma loteria não impeçam a atualização das outras e facilita a visualização dos logs.
-  - **Passos de cada Job:**
-        1. **Checkout:** `actions/checkout@v3` para obter o código do repositório.
-        2. **Setup Python:** `actions/setup-python@v4` para configurar o ambiente Python.
-        3. **Install Dependencies:** Instalar as bibliotecas listadas no `requirements.txt`.
-        4. **Run Update Script:** Executar `python scripts/update.py {loteria}`.
-        5. **Commit and Push:** Usar uma action como `stefanzweifel/git-auto-commit-action@v4` ou um passo de script manual para verificar se houve alterações nos arquivos de dados e, em caso afirmativo, commitar e fazer o push para a branch principal. O commit será feito em nome de um bot (e.g., `github-actions[bot]`).
+- **Lógica:** Permanece a mesma. O workflow irá configurar um ambiente Python no executor do GitHub Actions, instalar as dependências e rodar o script, pois a automação em nuvem não depende do ambiente Docker local.
 
 ### 3.3. Script de Bootstrap (`scripts/bootstrap.py`)
 
-- **Uso:** Manual e esporádico.
-- **Funcionalidade:**
-  - Este script será responsável por ler os arquivos de resultados "crus" baixados do site da Caixa (provavelmente em formato `.html` ou `.xlsx`).
-  - Utilizará bibliotecas como `pandas` (com `read_html` ou `read_excel`) e `BeautifulSoup` (se necessário) para extrair os dados.
-  - Converterá os dados extraídos para o schema definido em `SPECS.md` e salvará os arquivos `.csv` iniciais no diretório `data/`.
-  - A complexidade deste script dependerá muito do formato dos arquivos de origem.
+- **Uso:** Manual e esporádico, executado via `task`.
+- **Funcionalidade:** Permanece a mesma. Será adaptado para ser executado também via `task bootstrap`, por exemplo.

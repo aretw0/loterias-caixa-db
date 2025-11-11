@@ -14,7 +14,12 @@ A estratégia de testes para o projeto **Loterias Caixa DB** foca em garantir a 
     - **Funções de Parsing:** Testar as funções que convertem o JSON da API para o formato do DataFrame, garantindo que todos os campos são mapeados corretamente.
     - **Lógica de Requisição:** Simular diferentes respostas da API (sucesso, erro 404, JSON malformado) e verificar se o script se comporta como esperado.
     - **Manipulação de Dados:** Testar a lógica que identifica o último concurso e prepara os novos dados para serem adicionados ao CSV.
-- **Execução:** Os testes de unidade serão executados automaticamente via GitHub Actions a cada `push` ou `pull_request` para a branch principal, garantindo que novas alterações não quebrem a lógica existente.
+- **Execução:**
+    - **Localmente:** A execução dos testes de unidade deve ser feita através do Taskfile para garantir que eles rodem no ambiente Docker consistente.
+      ```bash
+      task test
+      ```
+    - **CI/CD:** Os testes de unidade serão executados automaticamente via GitHub Actions a cada `push` ou `pull_request` para a branch principal, garantindo que novas alterações não quebrem a lógica existente.
 
 ### 2.2. Testes de Integração
 
