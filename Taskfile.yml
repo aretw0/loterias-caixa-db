@@ -1,0 +1,7 @@
+version: '3'
+
+tasks:
+  update:
+    desc: "Atualiza os resultados de uma loteria. Ex: task update quina"
+    cmds:
+      - docker-compose run --rm app python scripts/update.py {{.CLI_ARGS}}
