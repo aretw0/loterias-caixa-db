@@ -9,8 +9,9 @@ def get_last_contest(file_path):
     """
     try:
         df = pd.read_csv(file_path)
-        if not df.empty and 'concurso' in df.columns:
-            return df['concurso'].max()
+        if not df.empty and 'Concurso' in df.columns:
+            # Ensure the 'Concurso' column is numeric, coercing errors to NaN and then filling with 0
+            return pd.to_numeric(df['Concurso'], errors='coerce').fillna(0).max()
     except FileNotFoundError:
         return 0
     return 0
@@ -27,19 +28,54 @@ def fetch_contest_data(lottery, contest_number):
 
 def transform_data(api_data, csv_columns):
     """
-    Transforms the API data to match the CSV schema.
-    This is a placeholder and needs to be implemented for each lottery.
+    Transforms the API data to match the CSV schema for Quina.
     """
-    # This function will contain the ETL logic.
-    # It needs to map the fields from api_data (JSON) to the csv_columns.
-    print("Transformação de dados ainda não implementada.")
-    # Exemplo hipotético:
-    # transformed_row = {}
-    # for col in csv_columns:
-    #     # Lógica de mapeamento aqui
-    #     transformed_row[col] = api_data.get(some_mapping_logic(col))
-    # return transformed_row
-    return None
+    transformed_row = {}
+
+    # Basic fields
+    transformed_row['Concurso'] = api_data.get('numero')
+    transformed_row['Data Sorteio'] = api_data.get('dataApuracao')
+
+    # Dezenas Sorteadas
+    for i in range(5):
+        transformed_row[f'Bola{i+1}'] = api_data['listaDezenas'][i] if i < len(api_data.get('listaDezenas', [])) else ''
+
+    # Ganhadores e Rateio por Faixa
+    # Initialize all prize tiers to 0 or empty string
+    for col in ['Ganhadores 5 acertos', 'Rateio 5 acertos',
+                'Ganhadores 4 acertos', 'Rateio 4 acertos',
+                'Ganhadores 3 acertos', 'Rateio 3 acertos',
+                'Ganhadores 2 acertos', 'Rateio 2 acertos']:
+        transformed_row[col] = 0 if 'Ganhadores' in col else 0.0
+
+    for item in api_data.get('listaRateioPremio', []):
+        if item['descricaoFaixa'] == '5 acertos':
+            transformed_row['Ganhadores 5 acertos'] = item['numeroDeGanhadores']
+            transformed_row['Rateio 5 acertos'] = item['valorPremio']
+        elif item['descricaoFaixa'] == '4 acertos':
+            transformed_row['Ganhadores 4 acertos'] = item['numeroDeGanhadores']
+            transformed_row['Rateio 4 acertos'] = item['valorPremio']
+        elif item['descricaoFaixa'] == '3 acertos':
+            transformed_row['Ganhadores 3 acertos'] = item['numeroDeGanhadores']
+            transformed_row['Rateio 3 acertos'] = item['valorPremio']
+        elif item['descricaoFaixa'] == '2 acertos':
+            transformed_row['Ganhadores 2 acertos'] = item['numeroDeGanhadores']
+            transformed_row['Rateio 2 acertos'] = item['valorPremio']
+
+    # Acumulado
+    transformed_row['Acumulado 5 acertos'] = 'SIM' if api_data.get('acumulado') else 'NAO'
+    transformed_row['Arrecadacao Total'] = api_data.get('valorArrecadado')
+    transformed_row['Estimativa Premio'] = api_data.get('valorEstimadoProximoConcurso')
+    transformed_row['Acumulado Sorteio Especial Quina de São João'] = api_data.get('valorAcumuladoConcursoEspecial')
+    transformed_row['observação'] = api_data.get('observacao', '')
+    
+    # Cidade / UF - leaving empty for now as per initial observation
+    transformed_row['Cidade / UF'] = '' # Handle if listaMunicipioUFGanhadores is ever populated
+
+    # Ensure all CSV columns are present, even if empty or None
+    final_row = {col: transformed_row.get(col, '') for col in csv_columns}
+    
+    return final_row
 
 def update_lottery_data(lottery):
     """
@@ -69,14 +105,10 @@ def update_lottery_data(lottery):
         api_data = fetch_contest_data(lottery, next_contest)
 
         if api_data:
-            # Here we would call the transform_data function
-            # transformed_row = transform_data(api_data, csv_columns)
-            # if transformed_row:
-            #     new_results.append(transformed_row)
-            print(f"Dados encontrados para o concurso {next_contest}. A lógica de transformação precisa ser implementada.")
+            transformed_row = transform_data(api_data, csv_columns)
+            if transformed_row:
+                new_results.append(transformed_row)
             next_contest += 1
-            # For development, let's break after one successful fetch to avoid long loops
-            break 
         else:
             print(f"Nenhum dado encontrado para o concurso {next_contest}. Fim da atualização.")
             break

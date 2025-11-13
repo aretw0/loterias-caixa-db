@@ -20,10 +20,18 @@ tasks:
     cmds:
       - docker-compose run --rm app python scripts/bootstrap.py {{.LOTERIA}}
 
-  update:
-    desc: "Atualiza os resultados de uma loteria. Ex: task update quina"
+  update-quina:
+    desc: "Atualiza os resultados da Quina."
     cmds:
-      - docker-compose run --rm app python scripts/update.py {{.CLI_ARGS}}
+      - task: update
+        vars:
+          LOTERIA: "quina"
+
+  update:
+    interactive: true
+    desc: "Atualiza os resultados de uma loteria."
+    cmds:
+      - docker-compose run --rm app python scripts/update.py {{.LOTERIA}}
 
   test:
     desc: "Roda os testes com pytest"
