@@ -2,10 +2,10 @@ version: '3'
 
 tasks:
 
-  up:
-    desc: "Sobe os containers necessários para o desenvolvimento"
+  build:
+    desc: "Builda as imagens Docker."
     cmds:
-      - docker-compose up -d
+      - docker-compose build
 
   bootstrap-quina:
     desc: "Realiza o bootstrap de dados históricos da Quina."
