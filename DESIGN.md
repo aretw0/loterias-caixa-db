@@ -64,12 +64,12 @@ loterias-caixa-db/
 - **Dependências:** `pandas`, `requests`.
 - **Execução Local:** `task update {nome_da_loteria}`.
 - **Funcionalidade:**
-    - O script é executado dentro de um contêiner Docker, garantindo consistência.
-    - Recebe o nome da loteria como argumento de linha de comando.
-    - **Lógica Principal (ETL - Extract, Transform, Load):**
-        1.  **Extração (Extract):** Carrega o `.csv` local, identifica o último concurso e busca os dados dos concursos seguintes na API da Caixa.
-        2.  **Transformação (Transform):** Mapeia os dados do JSON da API para o schema do `.csv` de destino.
-        3.  **Carga (Load):** Adiciona os novos registros ao arquivo `.csv`.
+  - O script é executado dentro de um contêiner Docker, garantindo consistência.
+  - Recebe o nome da loteria como argumento de linha de comando.
+  - **Lógica Principal (ETL - Extract, Transform, Load):**
+        1. **Extração (Extract):** Carrega o `.csv` local, identifica o último concurso e busca os dados dos concursos seguintes na API da Caixa.
+        2. **Transformação (Transform):** Mapeia os dados do JSON da API para o schema do `.csv` de destino.
+        3. **Carga (Load):** Adiciona os novos registros ao arquivo `.csv`.
 
 ### 3.2. Workflow do GitHub Actions (`.github/workflows/update_results.yml`)
 

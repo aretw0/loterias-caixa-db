@@ -42,6 +42,7 @@ Isso garante que os dados adicionados pela automação sejam consistentes com os
 **Exemplo (Hipotético):**
 
 Se o arquivo `quina.xlsx` da Caixa, após a conversão, gerar um `quina.csv` com as colunas `["Concurso", "Data Sorteio", "Dezena1", "Dezena2", ..., "Ganhadores Quina"]`, o script de atualização deverá pegar o JSON da API e mapear:
+
 - `numero` -> `Concurso`
 - `dataApuracao` -> `Data Sorteio`
 - `listaDezenas[0]` -> `Dezena1`
