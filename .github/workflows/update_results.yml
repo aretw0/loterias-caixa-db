@@ -25,13 +25,11 @@ jobs:
       - name: Atualizar Quina
         run: python scripts/update.py quina
 
-      # TODO: Descomentar quando o script de atualização da Mega-Sena estiver pronto
-      # - name: Atualizar Mega-Sena
-      #   run: python scripts/update.py megasena
+      - name: Atualizar Mega-Sena
+        run: python scripts/update.py megasena
 
-      # TODO: Descomentar quando o script de atualização da Lotofácil estiver pronto
-      # - name: Atualizar Lotofácil
-      #   run: python scripts/update.py lotofacil
+      - name: Atualizar Lotofácil
+        run: python scripts/update.py lotofacil
 
       - name: Commit e Push das alterações
         uses: stefanzweifel/git-auto-commit-action@v5
