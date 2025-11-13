@@ -19,23 +19,17 @@ Este marco inicial estabeleceu a fundação do projeto.
   - `[X]` Documentação inicial (`README.md`, `SPECS.md`, `DESIGN.md`, `TESTING_STRATEGY.md`).
   - `[X]` Arquivos `.csv` vazios para as loterias iniciais.
 
-### Marco 2: Bootstrap de Dados (▶️ Em Progresso)
+### Marco 2: Bootstrap de Dados (✅ Concluído para Quina)
 
-Este é o passo **essencial** para alcançar a visão "set up and forget it". O objetivo é criar a base de dados histórica inicial a partir de uma fonte oficial. Atualmente, este processo ainda é um pré-requisito manual.
+O objetivo deste marco é criar a base de dados histórica inicial. O bootstrap para a **Quina** já foi realizado, com o arquivo `data/quina.csv` populado a partir do arquivo oficial da Caixa.
 
-- **Entregas:**
-  - `[ ]` **Obter Arquivo Histórico Oficial:** Baixar o arquivo de resultados completo (e.g., `.xlsx` ou `.html`) do site da Caixa.
-  - `[ ]` **Implementar `scripts/bootstrap.py`:** Desenvolver o script que:
-    - Lê o arquivo histórico oficial.
-    - Converte os dados para um formato limpo e estruturado.
-    - Salva os dados no arquivo `.csv` correspondente em `data/`, definindo o schema de dados que será usado dali em diante.
-  - `[ ]` **Automatizar o Bootstrap (Visão "Set up and forget it"):**
-    - Para que o projeto seja verdadeiramente "set up and forget it" para um novo usuário (ou para adicionar uma nova loteria), o ideal é que o processo de bootstrap seja o mais simples possível.
-    - **Solução Proposta:** O script `bootstrap.py` poderia ser projetado para baixar o arquivo histórico diretamente de uma URL conhecida no site da Caixa, se disponível. Caso contrário, a documentação deve ser extremamente clara sobre onde encontrar o arquivo e como executar o comando de bootstrap.
-    - `[ ]` Criar um comando `task bootstrap {loteria}` para simplificar a execução.
+- **Entregas (Quina):**
+  - `[X]` **Arquivo Histórico Processado:** O arquivo `data/quina.csv` foi gerado.
+  - `[X]` **Schema Definido:** O schema do `.csv` da Quina está estabelecido e pronto para ser usado pelo script de atualização.
 
-- **Status de "Pronto" para o Usuário:**
-  - O projeto será considerado "pronto para bootstrap" quando um usuário puder clonar o repositório, executar um único comando (ex: `task bootstrap megasena`) e ter o arquivo `data/megasena.csv` populado com o histórico completo de resultados, sem precisar de passos manuais complexos.
+- **Próximos Passos (Outras Loterias):**
+  - `[ ]` Implementar o processo de bootstrap para a Mega-Sena.
+  - `[ ]` Implementar o processo de bootstrap para a Lotofácil.
 
 ### Marco 3: Automação de Atualização Contínua (✅ Concluído)
 
@@ -45,17 +39,17 @@ A infraestrutura para a atualização automática já está implementada e pront
   - `[X]` Workflow do GitHub Actions (`.github/workflows/update_results.yml`) configurado para rodar diariamente.
   - `[X]` O workflow está preparado para executar o script de atualização, fazer o commit e o push das alterações.
 
-### Marco 4: Implementação da Lógica de Atualização (⏳ A Fazer)
+### Marco 4: Implementação da Lógica de Atualização (▶️ Em Progresso)
 
-Com o bootstrap definido, o próximo passo é implementar a lógica que busca e adiciona os novos resultados.
+Com o bootstrap da Quina concluído, o foco agora é implementar a lógica que busca e adiciona os novos resultados para esta loteria.
 
 - **Entregas:**
-  - `[ ]` **Implementar `scripts/update.py`:**
-    - `[ ]` Lógica para ler o `.csv` existente e encontrar o último concurso.
+  - `[ ]` **Implementar `scripts/update.py` (para a Quina):**
+    - `[ ]` Lógica para ler o `data/quina.csv` e encontrar o último concurso.
     - `[ ]` Lógica para chamar a API da Caixa e buscar os concursos seguintes.
-    - `[ ]` **Função de Transformação:** Mapear os campos do JSON da API para as colunas do `.csv` (conforme definido no Marco 2).
+    - `[ ]` **Função de Transformação:** Mapear os campos do JSON da API para as colunas do `data/quina.csv`.
     - `[ ]` Lógica para adicionar os novos registros ao arquivo `.csv`.
-    - `[ ]` Implementar validações de dados (defensive programming) para garantir a integridade dos dados.
+    - `[ ]` Implementar validações de dados para garantir a integridade.
 
 ### Marco 5: Testes e Validação (⏳ A Fazer)
 
@@ -63,10 +57,10 @@ Garantir a robustez e a confiabilidade do sistema através de testes automatizad
 
 - **Entregas:**
   - `[ ]` **Testes de Unidade (`pytest`):**
-    - `[ ]` Criar testes para a função de transformação de dados em `update.py`.
+    - `[ ]` Criar testes para a função de transformação de dados em `update.py` para a Quina.
     - `[ ]` Simular respostas da API (`requests-mock`) para testar cenários de sucesso e de falha.
-  - `[ ]` **Configurar CI:** Integrar a execução dos testes no workflow do GitHub Actions para rodar a cada push/pull request.
+  - `[ ]` **Configurar CI:** Integrar a execução dos testes no workflow do GitHub Actions.
 
 ## Resumo do Estado Atual
 
-O projeto tem uma base sólida de arquitetura e automação. O foco principal agora é a **implementação da camada de dados**, começando pelo processo de **bootstrap**, que é o desbloqueio para todo o resto do fluxo de valor. Uma vez que o bootstrap esteja funcional e simplificado, a implementação da lógica de atualização e dos testes seguirá de forma mais direta.
+O projeto tem uma base sólida de arquitetura e automação, e o bootstrap da **Quina** está finalizado. O foco principal agora é **implementar a lógica de atualização em `scripts/update.py` para a Quina**, o que tornará o repositório totalmente funcional para esta loteria, alcançando a visão "set up and forget it". Após isso, o próximo passo será a criação de testes para validar o processo.
