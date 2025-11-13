@@ -14,6 +14,20 @@ tasks:
         vars:
           LOTERIA: "quina"
 
+  bootstrap-lotofacil:
+    desc: "Realiza o bootstrap de dados históricos da Lotofácil."
+    cmds:
+      - task: bootstrap
+        vars:
+          LOTERIA: "lotofacil"
+  
+  bootstrap-megasena:
+    desc: "Realiza o bootstrap de dados históricos da Mega-Sena."
+    cmds:
+      - task: bootstrap
+        vars:
+          LOTERIA: "megasena"
+
   bootstrap:
     internal: true
     desc: "Realiza o bootstrap de dados históricos de uma loteria a partir de um arquivo .xlsx."
@@ -26,6 +40,20 @@ tasks:
       - task: update
         vars:
           LOTERIA: "quina"
+  
+  update-lotofacil:
+    desc: "Atualiza os resultados da Lotofácil."
+    cmds:
+      - task: update
+        vars:
+          LOTERIA: "lotofacil"
+
+  update-megasena:
+    desc: "Atualiza os resultados da Mega-Sena."
+    cmds:
+      - task: update
+        vars:
+          LOTERIA: "megasena"
 
   update:
     interactive: true

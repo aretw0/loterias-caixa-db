@@ -9,8 +9,8 @@ jobs:
   update_loterias:
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        lottery: [quina, megasena, lotofacil] # Lista de loterias a serem atualizadas
+      matrix: # TODO: Adicionar outras loterias ao matrix se necessário
+        lottery: [quina] # [quina, megasena, lotofacil] # Lista de loterias a serem atualizadas
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
