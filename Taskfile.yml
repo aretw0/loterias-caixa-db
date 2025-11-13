@@ -1,11 +1,30 @@
 version: '3'
 
 tasks:
+
+  up:
+    desc: "Sobe os containers necessários para o desenvolvimento"
+    cmds:
+      - docker-compose up -d
+
+  bootstrap-quina:
+    desc: "Realiza o bootstrap de dados históricos da Quina."
+    cmds:
+      - task: bootstrap
+        vars:
+          LOTERIA: "quina"
+
+  bootstrap:
+    internal: true
+    desc: "Realiza o bootstrap de dados históricos de uma loteria a partir de um arquivo .xlsx."
+    cmds:
+      - docker-compose run --rm app python scripts/bootstrap.py {{.LOTERIA}}
+
   update:
     desc: "Atualiza os resultados de uma loteria. Ex: task update quina"
     cmds:
       - docker-compose run --rm app python scripts/update.py {{.CLI_ARGS}}
-  
+
   test:
     desc: "Roda os testes com pytest"
     cmds:
