@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 import logging
 from typing import Dict, Any
-from scripts.lottery_config import LOTTERY_CONFIG
+from .lottery_config import LOTTERY_CONFIG
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
