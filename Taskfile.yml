@@ -32,7 +32,7 @@ tasks:
     internal: true
     desc: "Realiza o bootstrap de dados históricos de uma loteria a partir de um arquivo .xlsx."
     cmds:
-      - docker-compose run --rm app python scripts/bootstrap.py {{.LOTERIA}}
+      - docker-compose run --rm app python -m scripts.bootstrap {{.LOTERIA}}
 
   update-quina:
     desc: "Atualiza os resultados da Quina."
@@ -59,7 +59,7 @@ tasks:
     interactive: true
     desc: "Atualiza os resultados de uma loteria."
     cmds:
-      - docker-compose run --rm app python scripts/update.py {{.LOTERIA}}
+      - docker-compose run --rm app python -m scripts.update {{.LOTERIA}}
 
   test:
     desc: "Roda os testes com pytest"

@@ -29,13 +29,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Atualizar Quina
-        run: python scripts/update.py quina
+        run: python -m scripts.update quina
 
       - name: Atualizar Mega-Sena
-        run: python scripts/update.py megasena
+        run: python -m scripts.update megasena
 
       - name: Atualizar Lotofácil
-        run: python scripts/update.py lotofacil
+        run: python -m scripts.update lotofacil
 
       - name: Commit e Push das alterações
         uses: stefanzweifel/git-auto-commit-action@v5
