@@ -5,8 +5,9 @@ Este repositório tem como objetivo criar e manter uma base de dados atualizada 
 ## Visão Geral
 
 O sistema utiliza scripts em Python e automação com GitHub Actions para:
-1.  Manter arquivos `.csv` com os resultados de diversas loterias (Mega-Sena, Quina, Lotofácil, etc.).
-2.  Atualizar automaticamente esses arquivos buscando os resultados mais recentes em uma API da Caixa.
+
+1. Manter arquivos `.csv` com os resultados de diversas loterias (Mega-Sena, Quina, Lotofácil, etc.).
+2. Atualizar automaticamente esses arquivos buscando os resultados mais recentes em uma API da Caixa.
 
 Toda a especificação e design do projeto estão documentados nos arquivos `SPECS.md`, `DESIGN.md` e `TESTING_STRATEGY.md`.
 
@@ -35,6 +36,7 @@ Este comando utiliza o Docker Compose para iniciar o contêiner da aplicação, 
 ## Estado Atual do Projeto
 
 A estrutura base do projeto está implementada:
+
 - ✅ Diretórios (`data`, `scripts`, `tests`, `.github/workflows`).
 - ✅ Arquivos de configuração (`requirements.txt`, `.gitignore`, `Dockerfile`, `docker-compose.yml`, `Taskfile.yml`).
 - ✅ Arquivos de documentação e especificação (`SPECS.md`, `DESIGN.md`, `TESTING_STRATEGY.md`).
@@ -46,11 +48,10 @@ A estrutura base do projeto está implementada:
 
 O projeto agora está aguardando a implementação da lógica de dados, que depende de um arquivo de resultados oficial da Caixa.
 
-1.  **Obter Arquivo de Bootstrap:** É necessário baixar o arquivo histórico de resultados de uma loteria (e.g., o arquivo `.xlsx` ou `.html` disponível no site da Caixa) e adicioná-lo ao projeto.
+1. **Obter Arquivo de Bootstrap:** É necessário baixar o arquivo histórico de resultados de uma loteria (e.g., o arquivo `.xlsx` ou `.html` disponível no site da Caixa) e adicioná-lo ao projeto.
 
-2.  **Implementar o `bootstrap.py`:** Desenvolver o script que lê o arquivo oficial, o converte para `.csv` e o salva em `data/`. O schema deste arquivo CSV será a **fonte da verdade** para os dados daquela loteria.
+2. **Implementar o `bootstrap.py`:** Desenvolver o script que lê o arquivo oficial, o converte para `.csv` e o salva em `data/`. O schema deste arquivo CSV será a **fonte da verdade** para os dados daquela loteria.
 
-3.  **Implementar a Transformação no `update.py`:** Com o schema do CSV definido, a função `transform_data` no script `update.py` deve ser implementada. Ela será responsável por mapear os campos do JSON vindo da API da Caixa para as colunas corretas do arquivo `.csv`.
+3. **Implementar a Transformação no `update.py`:** Com o schema do CSV definido, a função `transform_data` no script `update.py` deve ser implementada. Ela será responsável por mapear os campos do JSON vindo da API da Caixa para as colunas corretas do arquivo `.csv`.
 
-4.  **Implementar Testes:** Criar testes de unidade em `tests/` para validar a lógica de transformação e garantir a robustez do processo.
-
+4. **Implementar Testes:** Criar testes de unidade em `tests/` para validar a lógica de transformação e garantir a robustez do processo.
