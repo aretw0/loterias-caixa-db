@@ -2,8 +2,15 @@ import argparse
 import pandas as pd
 import requests
 import logging
+import sys
+import os
 from typing import Dict, Any
-from .lottery_config import LOTTERY_CONFIG
+
+# Add local directory to path to allow importing utils when run directly
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from lottery_config import LOTTERY_CONFIG
+from utils import clean_currency
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -70,15 +77,16 @@ def transform_data(lottery_name: str, api_data: Dict[str, Any]) -> Dict[str, Any
         if description in config["prize_tiers"]:
             tier_config = config["prize_tiers"][description]
             transformed_row[tier_config["ganhadores"]] = item['numeroDeGanhadores']
-            transformed_row[tier_config["rateio"]] = item['valorPremio']
+            transformed_row[tier_config["rateio"]] = clean_currency(item['valorPremio'])
 
     # Acumulado
-    transformed_row[f'Acumulado {config["balls"]} acertos'] = 'SIM' if api_data.get('acumulado') else 'NAO'
-    transformed_row[config["total_collected_column"]] = api_data.get('valorArrecadado')
-    transformed_row[config["estimated_prize_column"]] = api_data.get('valorEstimadoProximoConcurso')
+    # Usar valor acumulado se disponível, garantindo float
+    transformed_row[f'Acumulado {config["balls"]} acertos'] = clean_currency(api_data.get('valorAcumuladoProximoConcurso'))
+    transformed_row[config["total_collected_column"]] = clean_currency(api_data.get('valorArrecadado'))
+    transformed_row[config["estimated_prize_column"]] = clean_currency(api_data.get('valorEstimadoProximoConcurso'))
     
     if config["special_prize_column"]:
-        transformed_row[config["special_prize_column"]] = api_data.get('valorAcumuladoConcursoEspecial')
+        transformed_row[config["special_prize_column"]] = clean_currency(api_data.get('valorAcumuladoConcursoEspecial'))
     
     transformed_row[config["observation_column"]] = api_data.get('observacao', '')
     

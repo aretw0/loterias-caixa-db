@@ -152,7 +152,7 @@ def test_transform_data_quina():
     assert transformed[config["prize_tiers"]["3 acertos"]["rateio"]] == 42982.0
     assert transformed[config["prize_tiers"]["2 acertos"]["ganhadores"]] == 0 # Should be 0 as not present in sample_api_data_quina
     assert transformed[config["prize_tiers"]["2 acertos"]["rateio"]] == 0.0 # Should be 0.0 as not present
-    assert transformed[f'Acumulado {config["balls"]} acertos'] == 'NAO'
+    assert transformed[f'Acumulado {config["balls"]} acertos'] == 0.0
     assert transformed[config["total_collected_column"]] == 0.0
     assert transformed[config["estimated_prize_column"]] == 0.0
     assert transformed[config["special_prize_column"]] == 0.0
@@ -181,7 +181,7 @@ def test_transform_data_megasena():
     assert transformed[config["prize_tiers"]["5 acertos"]["rateio"]] == 39158.92
     assert transformed[config["prize_tiers"]["4 acertos"]["ganhadores"]] == 2016
     assert transformed[config["prize_tiers"]["4 acertos"]["rateio"]] == 330.21
-    assert transformed[f'Acumulado {config["balls"]} acertos'] == 'NAO'
+    assert transformed[f'Acumulado {config["balls"]} acertos'] == 0.0
     assert transformed[config["total_collected_column"]] == 0.0
     assert transformed[config["estimated_prize_column"]] == 0.0
     assert transformed[config["special_prize_column"]] == 0.0
@@ -214,7 +214,7 @@ def test_transform_data_lotofacil():
     assert transformed[config["prize_tiers"]["12 acertos"]["rateio"]] == 4.00
     assert transformed[config["prize_tiers"]["11 acertos"]["ganhadores"]] == 257593
     assert transformed[config["prize_tiers"]["11 acertos"]["rateio"]] == 2.00
-    assert transformed[f'Acumulado {config["balls"]} acertos'] == 'NAO'
+    assert transformed[f'Acumulado {config["balls"]} acertos'] == 0.0
     assert transformed[config["total_collected_column"]] == 0.0
     assert transformed[config["estimated_prize_column"]] == 0.0
     assert transformed[config["special_prize_column"]] == 0.0

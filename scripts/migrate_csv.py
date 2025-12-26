@@ -8,28 +8,26 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils import clean_currency
 from lottery_config import LOTTERY_CONFIG
 
-def bootstrap_loteria(loteria_name: str):
+def migrate_csvs():
     """
-    Lê um arquivo .xlsx de uma loteria, converte para .csv e salva em data/.
-    Aplica limpeza de dados monetários.
+    Iterates over all configured lotteries and cleans their CSV files
+    converting currency strings to floats.
     """
-    xlsx_path = f"data/{loteria_name}.xlsx"
-    csv_path = f"data/{loteria_name}.csv"
+    print("Iniciando migração dos arquivos CSV...")
 
-    if not os.path.exists(xlsx_path):
-        print(f"Erro: Arquivo '{xlsx_path}' não encontrado.")
-        sys.exit(1)
-
-    print(f"Iniciando bootstrap para '{loteria_name}'...")
-
-    # Ler o arquivo .xlsx
-    try:
-        df = pd.read_excel(xlsx_path)
+    for lottery_name, config in LOTTERY_CONFIG.items():
+        csv_path = f"data/{lottery_name}.csv"
         
-        # Obter configuração para saber quais colunas limpar
-        config = LOTTERY_CONFIG.get(loteria_name)
-        if config:
-            # Colunas de rateio e arrecadação que precisam ser float
+        if not os.path.exists(csv_path):
+            print(f"Skipping {lottery_name}: {csv_path} not found.")
+            continue
+
+        print(f"Processando {lottery_name}...")
+        
+        try:
+            df = pd.read_csv(csv_path)
+            
+            # Identificar colunas monetárias
             monetary_columns = []
             
             # Adicionar colunas de rateio
@@ -43,31 +41,28 @@ def bootstrap_loteria(loteria_name: str):
                 monetary_columns.append(config["estimated_prize_column"])
             if "special_prize_column" in config:
                 monetary_columns.append(config["special_prize_column"])
-
+            
             # Coluna de Acumulado (ex: Acumulado 5 acertos)
             accumulated_col = f"Acumulado {config['balls']} acertos"
             monetary_columns.append(accumulated_col)
 
-            print(f"Limpando colunas monetárias: {monetary_columns}")
-            
+            cleaned_count = 0
             for col in monetary_columns:
                 if col in df.columns:
-                    # Aplica a limpeza apenas se a coluna existir
+                    # Aplica a limpeza
                     df[col] = df[col].apply(clean_currency)
-        
-        # Salvar como .csv
-        df.to_csv(csv_path, index=False)
-        
-        print(f"Arquivo '{csv_path}' criado com sucesso.")
+                    cleaned_count += 1
+            
+            if cleaned_count > 0:
+                df.to_csv(csv_path, index=False)
+                print(f"  -> Atualizado {lottery_name} com sucesso. {cleaned_count} colunas limpas.")
+            else:
+                print(f"  -> Nenhuma coluna precisou ser limpa em {lottery_name}.")
 
-    except Exception as e:
-        print(f"Ocorreu um erro ao processar o arquivo: {e}")
-        sys.exit(1)
+        except Exception as e:
+            print(f"Erro ao processar {lottery_name}: {e}")
+
+    print("Migração concluída.")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Uso: python scripts/bootstrap.py <nome_da_loteria>")
-        sys.exit(1)
-    
-    loteria = sys.argv[1]
-    bootstrap_loteria(loteria)
+    migrate_csvs()
